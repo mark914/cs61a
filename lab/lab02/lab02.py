@@ -50,6 +50,16 @@ def count_cond(condition):
     8
     """
     "*** YOUR CODE HERE ***"
+    def count_function(n):
+        count, i = 0, 1
+        while i <= n:
+            if condition(n, i):
+                count += 1
+            i += 1
+        return count
+
+
+    return count_function
 
 
 
