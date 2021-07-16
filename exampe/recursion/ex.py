@@ -23,3 +23,34 @@ def sum_range(n):
     """
     return sum_list(list(range(n+1)))
 
+
+
+def mysum(list):
+    """compute the sum of elements in list
+
+    Args:
+        list (list):list
+    >>> mysum([1,2,3])
+    6   
+    >>> mysum([1])
+    1
+    """
+    if list == []:
+        return 0
+    return list[0]+mysum(list[1:])
+
+def reverse(str):
+    """reverse the string
+
+    Args:
+        str (str): string
+
+    >>> reverse('abc')
+    'cba'
+    >>> reverse('a')
+    'a'
+    """
+    if str == "":
+        return ""
+    else:
+        return reverse(str[1:])+str[0]

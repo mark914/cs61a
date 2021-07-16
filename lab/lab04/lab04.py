@@ -19,7 +19,10 @@ def skip_add(n):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    if n<=0:
+        return 0
+    else:
+        return n + skip_add(n-2)
 
 def summation(n, term):
 
@@ -41,6 +44,12 @@ def summation(n, term):
     """
     assert n >= 1
     "*** YOUR CODE HERE ***"
+    if n == 1:
+        return term(n)
+    else:
+        return term(n) + summation(n-1, term)
+
+
 
 
 def paths(m, n):
@@ -57,6 +66,12 @@ def paths(m, n):
     1
     """
     "*** YOUR CODE HERE ***"
+    if m == 1 or n == 1:
+        return 1
+    else: 
+        m_num = paths(m-1, n)
+        n_num = paths(m, n-1)
+    return m_num + n_num
 
 
 
@@ -105,6 +120,31 @@ def max_subseq(n, t):
     5
     """
     "*** YOUR CODE HERE ***"
+    # if t == 0:
+    #     return 0
+    # elif t == 1:
+    #     return max([int(x) for x in list(str(n))])
+    # elif t > len(str(n)):
+    #     return n
+    # else:
+    #     a = max_subseq(n[1:],t-1)
+    #     a =  n*10**(t) + a
+    #     b = max_subseq(n[1:],t)
+    #     return max(a,b)
+    
+    #这里有点难，主要是因为思路被卡住了，只要想到整数是从后往前分解比较方便就可以了。
+    if t == 0:
+        return 0
+    elif len(str(n)) <= t:
+        return n
+    else:
+        a = max_subseq(n//10, t-1)*10 + n%10
+        b = max_subseq(n//10, t)
+        return max(a, b)
+       
+
+
+
 
 
 def add_chars(w1, w2):
@@ -134,4 +174,10 @@ def add_chars(w1, w2):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    if len(w1) == 0:
+        return w2  #当len(w1)==0时，无论w2是啥，w2中的所有字母都不在w1中，因此应该返回w2.
+    else:
+        if w1[0] == w2[0]:
+            return add_chars(w1[1:],w2[1:])
+        else:
+            return w2[0] + add_chars(w1, w2[1:])
