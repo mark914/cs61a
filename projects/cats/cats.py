@@ -1,5 +1,6 @@
 """Typing test implementation"""
 
+from os import kill, stat_result
 from utils import lower, split, remove_punctuation, lines_from_file
 from ucb import main, interact, trace
 from datetime import datetime
@@ -18,6 +19,16 @@ def choose(paragraphs, select, k):
     # BEGIN PROBLEM 1
     "*** YOUR CODE HERE ***"
     # END PROBLEM 1
+    vaild_paragraphs = []
+    for paragraph in paragraphs:
+        if select(paragraph):
+            vaild_paragraphs.append(paragraph)
+
+    if len(vaild_paragraphs) <= k:
+        return ''
+    else:
+        return vaild_paragraphs[k]
+
 
 
 def about(topic):
@@ -34,7 +45,11 @@ def about(topic):
     # BEGIN PROBLEM 2
     "*** YOUR CODE HERE ***"
     # END PROBLEM 2
-
+    def select(paragraph):
+        if paragraph in topic:
+            return True
+        return False
+    return select
 
 def accuracy(typed, reference):
     """Return the accuracy (percentage of words typed correctly) of TYPED
@@ -58,7 +73,20 @@ def accuracy(typed, reference):
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
     # END PROBLEM 3
-
+    denom = len(typed_words)
+    refer_len = len(reference_words)
+    if denom == 0:
+        return 0.0
+    if denom > refer_len:
+        typed_words = typed_words[:refer_len]
+    else:
+        reference_words = reference_words[:denom]
+    
+    sum = 0
+    for i in range(len(typed_words)):
+        if typed_words[i] == reference_words[i]:
+                sum += 1
+    return sum/denom*100
 
 def wpm(typed, elapsed):
     """Return the words-per-minute (WPM) of the TYPED string."""
@@ -66,6 +94,12 @@ def wpm(typed, elapsed):
     # BEGIN PROBLEM 4
     "*** YOUR CODE HERE ***"
     # END PROBLEM 4
+
+    typed_num = 0
+    for _ in typed:
+        typed_num += 1
+
+    return typed_num/(5*elapsed)*60
 
 
 def autocorrect(user_word, valid_words, diff_function, limit):
@@ -76,6 +110,18 @@ def autocorrect(user_word, valid_words, diff_function, limit):
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
     # END PROBLEM 5
+    if user_word in valid_words:
+        return user_word
+    else:
+        diff = [diff_function(user_word, valid_word,limit) for valid_word in valid_words]
+        if min(diff) > limit:
+            return user_word
+        else:
+            for valid_word in valid_words:
+                if diff_function(user_word, valid_word,limit) == min(diff):
+                    return valid_word
+                    
+            
 
 
 def shifty_shifts(start, goal, limit):
@@ -84,31 +130,63 @@ def shifty_shifts(start, goal, limit):
     their lengths.
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
-    # END PROBLEM 6
+    #要有能够记录错误数目的变量k
+    def help(start, goal, limit, k):
+        if k+abs(len(start)-len(goal)) > limit:
+            return limit+1
+        #base case    
+        if start == '' or goal == '':
+            return k+abs(len(start)-len(goal))  if k+abs(len(start)-len(goal))<=limit else limit+1
+        else:#recursion case
+            if start[0] == goal[0]:
+                return help(start[1:], goal[1:], limit, k)
+            else:
+                return help(start[1:], goal[1:], limit, k+1)
+
+    return help(start, goal, limit, k=0)
+
+
+
 
 
 def pawssible_patches(start, goal, limit):
     """A diff function that computes the edit distance from START to GOAL."""
-    assert False, 'Remove this line'
+    # assert False, 'Remove this line'
+    # def help(start, goal, limit, k):
+    #     if k+abs(len(start)-len(goal)) > limit:
+    #         return limit+1
 
-    if ______________: # Fill in the condition
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+    #     if len(start) == 1:
+    #         if len(goal) == '':
+    #             return k+1
+    #         elif goal[0] == start[0]:
+    #             return k+abs(len(start)-len(goal))
+    #         elif goal[0] != start[0]:
+    #             return k+abs(len(start)-len(goal))+1
 
-    elif ___________: # Feel free to remove or add additional cases
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+    #     elif len(goal) == 1:
+    #         if len(start) == '':
+    #             return k + 1
+    #         elif goal[0] == start[0]:
+    #             return k+abs(len(start)-len(goal))
+    #         elif goal[0] != start[0]:
+    #             return k+abs(len(start)-len(goal))+1
+         
+    #     else:
+    #         if start[0] == goal[0]:  #the same
+    #             return help(start[1:], goal[1:], limit, k)
+    #         elif start[0] == goal[1]: #add
+    #             return help(start, goal[1:], limit, k+1)
+    #         elif start[1] == goal[0]: #delet
+    #             return help(start[1:], goal, limit, k+1)
+    #         elif start[1] == goal[1]: #substitute
+    #             return help(start[1:], goal[1:], limit, k+1)
 
-    else:
-        add_diff = ... # Fill in these lines
-        remove_diff = ...
-        substitute_diff = ...
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+    return help(start, goal, limit, k=0)
+
+
+
+
 
 
 def final_diff(start, goal, limit):
@@ -126,7 +204,16 @@ def report_progress(typed, prompt, user_id, send):
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
     # END PROBLEM 8
+    #一定要想清楚什么时候能够进入if条件，如果没有输出，以为着语句没有执行。意味着条件不符合。
+    number = 0
+    for i in range(len(typed)):
+        if typed[i] != prompt[i]:
+            break
+        number += 1
 
+    progress = number/len(prompt) 
+    send({'id':user_id, 'progress':progress})
+    return progress
 
 def fastest_words_report(times_per_player, words):
     """Return a text description of the fastest words typed by each player."""
@@ -151,6 +238,19 @@ def time_per_word(times_per_player, words):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    times = []
+    for player in times_per_player:
+        player_times = []
+        for i in range(len(player)-1):
+            player_times.append(player[i+1]-player[i])
+        times.append(player_times)   
+    # print(times)
+    return game(words, times)
+
+
+
+
+
     # END PROBLEM 9
 
 
@@ -167,6 +267,31 @@ def fastest_words(game):
     # BEGIN PROBLEM 10
     "*** YOUR CODE HERE ***"
     # END PROBLEM 10
+    #思路很重要，你要如何去构建一个list of lists，满足什么条件才添加一个元素。
+    word_times = []
+    for i in word_indices:
+        word_time = []
+        for j in player_indices:
+            word_time.append(time(game, j, i))
+        word_times.append(word_time)  
+
+    fast = []
+    for i in player_indices:
+        fast_player = []
+        for j in word_indices:
+            if time(game, i, j) == min(word_times[j]):
+                fast_player.append(word_at(game, j))
+                word_times[j].append(0)  #当平局的时候，判定index小的player最快
+
+        fast.append(fast_player)        
+    
+    return fast
+
+
+
+
+
+
 
 
 def game(words, times):

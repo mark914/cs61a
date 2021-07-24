@@ -54,3 +54,18 @@ def reverse(str):
         return ""
     else:
         return reverse(str[1:])+str[0]
+
+
+#这两个有什么不同，fact在达到base case时，还没有开始计算（递归，先递后归）。而fact_times在
+#到达base case时，已经计算好了（只有递，没有归）。
+def fact(n):
+    if n == 0:
+        return 1
+    else:
+        return n*fact(n-1)
+
+def fact_times(n,k):
+    if n == 0:
+        return k
+    else:
+        return fact_times(n-k, k*n)
