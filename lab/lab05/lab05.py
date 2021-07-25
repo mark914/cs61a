@@ -11,6 +11,10 @@ def couple(s, t):
     [['c', 's'], [6, '1']]
     """
     assert len(s) == len(t)
+    return [[s[i],t[i]] for i in range(len(s))]
+
+
+
     "*** YOUR CODE HERE ***"
 
 
@@ -26,6 +30,14 @@ def distance(city_a, city_b):
     >>> distance(city_c, city_d)
     5.0
     """
+    return sqrt((get_lat(city_a)-get_lat(city_b))**2 + (get_lon(city_a)-get_lon(city_b))**2)
+
+#anwser  答案更加简洁
+    # lat_1, lon_1 = get_lat(city_a), get_lon(city_a)
+    # lat_2, lon_2 = get_lat(city_b), get_lon(city_b)
+    # return sqrt((lat_1 - lat_2)**2 + (lon_1 - lon_2)**2)
+
+
     "*** YOUR CODE HERE ***"
 
 def closer_city(lat, lon, city_a, city_b):
@@ -44,7 +56,16 @@ def closer_city(lat, lon, city_a, city_b):
     'Bucharest'
     """
     "*** YOUR CODE HERE ***"
+    city_c = make_city('city_c', lat, lon)
+    return get_name(city_a) if distance(city_c, city_a) < distance(city_c, city_b) else get_name(city_b)
 
+#answer 答案过呢更容易看懂
+    # new_city = make_city('arb', lat, lon)
+    # dist1 = distance(city_a, new_city)
+    # dist2 = distance(city_b, new_city)
+    # if dist1 < dist2:
+    #      return get_name(city_a)
+    # return get_name(city_b)
 def check_city_abstraction():
     """
     There's nothing for you to do for this function, it's just here for the extra doctest
@@ -143,6 +164,14 @@ def berry_finder(t):
     True
     """
     "*** YOUR CODE HERE ***"
+    if label(t) == 'berry' :
+        return True 
+    for branch in branches(t):
+        if berry_finder(branch):
+            return True
+    return False
+
+
 
 
 def sprout_leaves(t, leaves):
@@ -179,6 +208,20 @@ def sprout_leaves(t, leaves):
           2
     """
     "*** YOUR CODE HERE ***"
+    #注意定义，什么是tree
+    if is_leaf(t):
+        return tree(label(t), [tree(x) for x in leaves])
+    return tree(label(t), [sprout_leaves(branch, leaves) for branch in branches(t)])
+
+# #answer
+#     if is_leaf(t):
+#         return tree(label(t), [tree(leaf) for leaf in leaves])
+#     return tree(label(t), [sprout_leaves(s, leaves) for s in branches(t)])
+
+
+
+
+
 
 # Abstraction tests for sprout_leaves and berry_finder
 def check_abstraction():
@@ -237,9 +280,10 @@ def coords(fn, seq, lower, upper):
     [[-2, 4], [1, 1], [3, 9]]
     """
     "*** YOUR CODE HERE ***"
-    return ______
+    return [[x, fn(x)] for x in seq if fn(x)>=lower and fn(x)<= upper]
 
-
+#answer
+#  return [[x, fn(x)] for x in seq if lower <= fn(x) <= upper]
 def riffle(deck):
     """Produces a single, perfect riffle shuffle of DECK, consisting of
     DECK[0], DECK[M], DECK[1], DECK[M+1], ... where M is position of the
@@ -250,7 +294,8 @@ def riffle(deck):
     [0, 10, 1, 11, 2, 12, 3, 13, 4, 14, 5, 15, 6, 16, 7, 17, 8, 18, 9, 19]
     """
     "*** YOUR CODE HERE ***"
-    return _______
+    #运用了数列的知识
+    return [deck[i//2] if i%2==0 else deck[(i+len(deck)-1)//2] for i in range(len(deck))]
 
 
 def add_trees(t1, t2):
@@ -280,8 +325,7 @@ def add_trees(t1, t2):
     4
       6
       4
-    >>> print_tree(add_trees(tree(2, [tree(3, [tree(4), tree(5)])]), \
-    tree(2, [tree(3, [tree(4)]), tree(5)])))
+    >>> print_tree(add_trees(tree(2, [tree(3, [tree(4), tree(5)])]), tree(2, [tree(3, [tree(4)]), tree(5)])))
     4
       6
         8
@@ -289,6 +333,29 @@ def add_trees(t1, t2):
       5
     """
     "*** YOUR CODE HERE ***"
+    min_tree = t1
+    max_tree = t2
+    if len(t1) > len(t2):
+        min_tree = t2
+        max_tree = t1
+    
+    if is_leaf(min_tree) or is_leaf(max_tree):
+        new_label = label(min_tree) + label(max_tree)
+        new_branch = branches(max_tree)+branches(min_tree)
+        return  tree(new_label, new_branch)
+    else:
+        new_branch = []
+        for i in range(len(min_tree)-1):
+            new_branch += [add_trees(branches(min_tree)[i], branches(max_tree)[i])]
+        for i in range(len(min_tree)-1, len(max_tree)-1):
+            new_branch += [branches(max_tree)[i]]
+        return tree(label(min_tree)+label(max_tree), new_branch)
+
+    #其实本质上还是列表相加的问题，列表相加要求必须都是列表。对tree的理解还不够深刻，tree的branches其实是列表。对base case的理解还不够深刻，base case就是基本情况
+    #让recursion终止的情况    
+
+
+    
 
 
 def build_successors_table(tokens):
@@ -305,14 +372,18 @@ def build_successors_table(tokens):
     >>> table['.']
     ['We']
     """
-    table = {}
-    prev = '.'
-    for word in tokens:
-        if prev not in table:
-            "*** YOUR CODE HERE ***"
-        "*** YOUR CODE HERE ***"
-        prev = word
-    return table
+    # table = {}
+    # prev = '.'
+    # for word in tokens:
+    #     # if prev not in table:
+    #     #     "*** YOUR CODE HERE ***"
+    #     #     follows = []
+    #     #     for i in range(len(tokens)):
+    #     #         if tokens[i] == prev:
+    #     #             return follows.append(tokens[0]) if i == len(tokens)-1 else follows.append(tokens[i+1])
+    #     # table[prev] = follows
+    #     # prev = word
+    # return table
 
 def construct_sent(word, table):
     """Prints a random sentence starting with word, sampling from
